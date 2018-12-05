@@ -1,0 +1,160 @@
+﻿<Window x:Class="MusicPlayer.MainWindow"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:i="http://schemas.microsoft.com/expression/blend/2010/interactivity"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MusicPlayer"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:Properties="clr-namespace:MusicPlayer.Properties"
+        mc:Ignorable="d"
+        Title="JedsPlayer" Height="703" Width="600"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontSize="14" TextElement.FontWeight="Medium"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+        >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <materialDesign:DialogHost DialogClosing="MusicFolderPath_DialogHost_OnDialogClosing">
+                <materialDesign:DialogHost.DialogContent>
+                    <StackPanel Width="400" Height="200">
+                        <TextBlock Margin="30 30 10 10">Music Folder Path:</TextBlock>
+                        <TextBox x:Name="tx_FolderPath" 
+                            Margin="30 10 20 10" Text="{Binding Path=MusicFolderPath, Source={x:Static Properties:Settings.Default}}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Width="80" Height="40" Margin="190 10 10 10"
+                                    IsDefault="True" Command="materialDesign:DialogHost.CloseDialogCommand">
+                                OK
+                                <Button.CommandParameter>
+                                    <system:Boolean>True</system:Boolean>
+                                </Button.CommandParameter>
+                            </Button>
+                            <Button  Width="100" Height="40" IsCancel="True"
+                                     Command="materialDesign:DialogHost.CloseDialogCommand"
+                                     >Cancel
+                                <Button.CommandParameter>
+                                    <system:Boolean>False</system:Boolean>
+                                </Button.CommandParameter>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </materialDesign:DialogHost.DialogContent>
+                <Menu Background="{DynamicResource PrimaryHueMidBrush}">
+                    <MenuItem Header="...">
+                        <MenuItem Header="Music Folder" Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="MusicBox"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Exit" Click="MenuItemExit_Click">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="Close"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="5 0 0 0" Text="{Binding ElementName=lv_Songs, Path=Items.Count}"/>
+                        <TextBlock Margin="5 0 0 0">Songs</TextBlock>
+                    </StackPanel>
+                </Menu>
+            </materialDesign:DialogHost>
+        </Grid>
+        
+        <StackPanel DockPanel.Dock="Bottom" >
+            <ListView x:Name="lv_Songs" Height="283" FontSize="14" SelectionChanged="lv_Songs_SelectionChanged">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Title" Width="400" DisplayMemberBinding="{Binding Title}"/>
+                        <GridViewColumn Header="Album" DisplayMemberBinding="{Binding Album}"/>
+                        <GridViewColumn Header="Artist" DisplayMemberBinding="{Binding Artist}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+        
+        <Grid DockPanel.Dock="Top" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Image x:Name="img_AlbumArt" Grid.Row="0" Margin="5" Height="200" Width="200">
+                </Image>
+            </Grid>
+            <Grid Grid.Row="1" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock x:Name="tx_TrackTitle">Track Title</TextBlock>
+                    <StackPanel Orientation="Horizontal" Width="400">
+                        <TextBlock x:Name="tx_TrackArtist">Artist</TextBlock>
+                        <TextBlock> /</TextBlock>
+                        <TextBlock x:Name="tx_TrackAlbum">Album</TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="tx_Position" Width="200"/>
+                        <TextBlock x:Name="tx_Duration" Width="200" TextAlignment="Right"/>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="85"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="slider_Position" Grid.Column="0"
+                                Thumb.DragStarted="slider_Position_DragStarted" 
+                                Thumb.DragCompleted="slider_Position_DragCompleted"
+                                ValueChanged="slider_Position_ValueChanged"
+                                />
+                        <materialDesign:PackIcon Kind="VolumeMedium" Grid.Column="1"/>
+                        <Slider x:Name="slider_Volume" Grid.Column="2" Maximum="1" Value="1" TickPlacement="BottomRight" TickFrequency="0.10" 
+                                ValueChanged="Slider_ValueChanged"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="2" Height="55">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="bt_Prev" Click="bt_Prev_Click">
+                        <materialDesign:PackIcon Kind="SkipPreviousCircleOutline"/>
+                    </Button>
+                    <Border Width="10"/>
+                    <ToggleButton x:Name="bt_PlayPause" 
+                                  Style="{StaticResource MaterialDesignActionToggleButton}" 
+                                  Background="{DynamicResource SecondaryAccentBrush}"
+                                  Click="bt_PlayPause_Click">
+                        <ToggleButton.Content>
+                            <materialDesign:PackIcon Kind="PlayCircleOutline"/>
+                        </ToggleButton.Content>
+                        <materialDesign:ToggleButtonAssist.OnContent>
+                            <materialDesign:PackIcon Kind="PauseCircleOutline"/>
+                        </materialDesign:ToggleButtonAssist.OnContent>
+                    </ToggleButton>
+                    <Border Width="10"/>
+                    <Button x:Name="bt_Fwd" Click="bt_Fwd_Click">
+                        <materialDesign:PackIcon Kind="SkipNextCircleOutline"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            
+        </Grid>
+    </DockPanel>
+</Window>
